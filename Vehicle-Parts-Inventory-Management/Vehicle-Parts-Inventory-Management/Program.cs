@@ -31,6 +31,11 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+// DI for services
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
+
 var app = builder.Build();
 
 // Middleware 
