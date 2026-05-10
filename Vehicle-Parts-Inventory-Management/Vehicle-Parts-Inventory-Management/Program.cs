@@ -13,6 +13,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ICustomerAuthService, CustomerAuthService>();
+
+// Session
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // API  
 builder.Services.AddControllers();
@@ -28,7 +38,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReact", policy =>
         policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
 
 var app = builder.Build();
@@ -41,8 +52,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReact");
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
