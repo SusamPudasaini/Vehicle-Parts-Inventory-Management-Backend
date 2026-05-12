@@ -13,6 +13,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ICustomerAuthService, CustomerAuthService>();
+
+// Session
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // API  
 builder.Services.AddControllers();
@@ -32,8 +42,14 @@ builder.Services.AddCors(options =>
             "http://localhost:3000",
             "https://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
+
+// DI for services
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
 
 var app = builder.Build();
 
@@ -45,8 +61,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReact");
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

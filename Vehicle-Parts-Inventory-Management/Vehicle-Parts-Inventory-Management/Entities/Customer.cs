@@ -14,6 +14,8 @@ namespace Vehicle_Parts_Inventory_Management.Entities
 
         public string Address { get; set; } = string.Empty;
 
+        public string PasswordHash { get; set; } = string.Empty;
+
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
