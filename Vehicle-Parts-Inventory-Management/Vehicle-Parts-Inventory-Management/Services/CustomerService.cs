@@ -79,12 +79,16 @@ namespace Vehicle_Parts_Inventory_Management.Services
 
         public async Task<List<CustomerResponse>> GetAllAsync()
         {
-            return await _db.Customers
+            var customers = await _db.Customers
                 .Include(c => c.Vehicles)
+                .AsNoTracking()
                 .OrderByDescending(c => c.RegisteredAt)
-                .Select(c => MapToResponse(c))
                 .ToListAsync();
+
+            return customers.Select(MapToResponse).ToList();
         }
+
+
 
         /// Feature 10: Search customers by name, phone, ID, or vehicle number.
         /// All comparisons are case-insensitive.
