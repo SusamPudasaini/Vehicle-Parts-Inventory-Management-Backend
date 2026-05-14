@@ -36,11 +36,20 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(
+            "http://localhost:5175",
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "https://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
 });
+
+// DI for services
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
 
 var app = builder.Build();
 

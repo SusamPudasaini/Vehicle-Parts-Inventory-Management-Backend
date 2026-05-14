@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Vehicle_Parts_Inventory_Management.Data;
 using Vehicle_Parts_Inventory_Management.DTOs.Responses;
 using Vehicle_Parts_Inventory_Management.DTOs.Requests;
@@ -38,16 +39,31 @@ namespace Vehicle_Parts_Inventory_Management.Services
 
         public async Task<StaffResponse> CreateAsync(StaffCreateRequest request)
         {
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var exists = await _db.Staff.AnyAsync(s => s.Email.ToLower() == normalizedEmail);
+            if (exists)
+            {
+                throw new InvalidOperationException("A staff account with this email already exists.");
+            }
+
             var staff = new Staff
             {
                 FullName = request.FullName,
-                Email = request.Email,
+                Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = request.Role,
                 PhoneNumber = request.PhoneNumber
             };
             _db.Staff.Add(staff);
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg && pg.SqlState == PostgresErrorCodes.UniqueViolation)
+            {
+                // Handles concurrent create requests that bypassed the pre-check.
+                throw new InvalidOperationException("A staff account with this email already exists.");
+            }
             return new StaffResponse { Id = staff.Id, FullName = staff.FullName, /* ... */ };
         }
 

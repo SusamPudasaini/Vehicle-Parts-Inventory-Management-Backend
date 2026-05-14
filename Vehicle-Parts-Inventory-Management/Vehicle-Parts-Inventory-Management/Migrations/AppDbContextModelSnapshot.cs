@@ -22,6 +22,43 @@ namespace Vehicle_Parts_Inventory_Management.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.Appointment", b =>
+                {
+                    b.Property<int>("AppointmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AppointmentId"));
+
+                    b.Property<DateTime>("AppointmentDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ServiceType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("VehicleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AppointmentId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
@@ -61,82 +98,71 @@ namespace Vehicle_Parts_Inventory_Management.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.PurchaseHistory", b =>
+            modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.PartRequest", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PartRequestId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PartRequestId"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("InvoiceNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PartName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("PurchasedAt")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("PurchaseHistories");
-                });
-
-            modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.ServiceHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("numeric");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
-                    b.Property<DateTime>("ServiceDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ServiceType")
+                    b.Property<string>("PartName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("VehicleNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PartRequestId");
 
-                    b.HasIndex("CustomerId");
+                    b.ToTable("PartRequests");
+                });
 
-                    b.ToTable("ServiceHistories");
+            modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.ServiceReview", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<int?>("AppointmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ReviewId");
+
+                    b.ToTable("ServiceReviews");
                 });
 
             modelBuilder.Entity("Vehicle_Parts_Inventory_Management.Entities.Staff", b =>

@@ -79,39 +79,49 @@ namespace Vehicle_Parts_Inventory_Management.Services
 
         public async Task<List<CustomerResponse>> GetAllAsync()
         {
-            return await _db.Customers
+            var customers = await _db.Customers
                 .Include(c => c.Vehicles)
+                .AsNoTracking()
                 .OrderByDescending(c => c.RegisteredAt)
-                .Select(c => MapToResponse(c))
                 .ToListAsync();
+
+            return customers.Select(MapToResponse).ToList();
         }
 
+
         /// Feature 10: Search customers by name, phone, ID, or vehicle number.
-        /// All comparisons are case-insensitive.
+        /// Case-insensitive search using PostgreSQL ILIKE.
         public async Task<List<CustomerResponse>> SearchAsync(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return new List<CustomerResponse>();
 
-            var lower = query.Trim().ToLower();
-            var pattern = $"%{lower}%";
+            var q = query.Trim();
+            var pattern = $"%{q}%";
 
-            var results = await _db.Customers
+            // If user typed a number, treat it as ID search too
+            var isId = int.TryParse(q, out var idValue);
+
+            var customerQuery = _db.Customers
                 .Include(c => c.Vehicles)
+                .AsNoTracking()
                 .Where(c =>
+                    (isId && c.Id == idValue) ||
                     EF.Functions.ILike(c.FullName, pattern) ||
                     EF.Functions.ILike(c.Phone, pattern) ||
-                    c.Id.ToString() == lower ||
+                    EF.Functions.ILike(c.Email, pattern) ||
                     c.Vehicles.Any(v => EF.Functions.ILike(v.VehicleNumber, pattern))
                 )
                 .OrderBy(c => c.FullName)
-                .Select(c => MapToResponse(c))
-                .ToListAsync();
+                .Take(50); // Safety limit
 
-            _logger.LogInformation("Search for '{Query}' returned {Count} results.", query, results.Count);
+            var customers = await customerQuery.ToListAsync();
 
-            return results;
+            _logger.LogInformation("Search for '{Query}' returned {Count} results.", query, customers.Count);
+
+            return customers.Select(MapToResponse).ToList();
         }
+
 
         private static CustomerResponse MapToResponse(Customer c) => new()
         {
