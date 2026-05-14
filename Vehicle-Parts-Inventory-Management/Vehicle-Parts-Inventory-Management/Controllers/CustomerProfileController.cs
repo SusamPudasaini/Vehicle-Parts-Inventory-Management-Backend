@@ -151,5 +151,31 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
 
             return Ok(new { message = result.Message });
         }
+
+        // GET: api/customer-profile/purchase-history
+        [HttpGet("purchase-history")]
+        public async Task<IActionResult> GetPurchaseHistory()
+        {
+            var id = GetCustomerId();
+            if (id == null)
+                return Unauthorized(new { message = "Please log in." });
+
+            var history = await _service.GetPurchaseHistoryAsync(id.Value);
+            return Ok(history);
+        }
+
+        // GET: api/customer-profile/service-history
+        [HttpGet("service-history")]
+        public async Task<IActionResult> GetServiceHistory()
+        {
+            var id = GetCustomerId();
+            if (id == null)
+                return Unauthorized(new { message = "Please log in." });
+
+            var history = await _service.GetServiceHistoryAsync(id.Value);
+            return Ok(history);
+        }
+
+
     }
 }

@@ -14,5 +14,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
         Task<(bool Success, string Message)> UpdateVehicleAsync(int customerId, int vehicleId, VehicleRequest request);
         Task<(bool Success, string Message)> DeleteVehicleAsync(int customerId, int vehicleId);
         Task<List<Vehicle>> GetVehiclesAsync(int customerId);
+        Task<List<PurchaseHistory>> GetPurchaseHistoryAsync(int customerId);
+        Task<List<ServiceHistory>> GetServiceHistoryAsync(int customerId);
     }
 }

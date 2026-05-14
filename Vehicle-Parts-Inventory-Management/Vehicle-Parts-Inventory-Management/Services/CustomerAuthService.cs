@@ -14,7 +14,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             _db = db;
         }
 
-        // REGISTER 
+        // REGISTER
         public async Task<(bool Success, string Message)> RegisterAsync(CustomerRegisterRequest request)
         {
             try
@@ -46,7 +46,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        // LOGIN 
+        // LOGIN
         public async Task<Customer?> LoginAsync(LoginRequest request)
         {
             try
@@ -65,7 +65,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        // GET PROFILE 
+        // GET PROFILE
         public async Task<Customer?> GetProfileAsync(int customerId)
         {
             return await _db.Customers
@@ -73,7 +73,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 .FirstOrDefaultAsync(c => c.Id == customerId);
         }
 
-        //  UPDATE PROFILE 
+        // UPDATE PROFILE
         public async Task<(bool Success, string Message)> UpdateProfileAsync(int customerId, UpdateProfileRequest request)
         {
             try
@@ -95,7 +95,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        //  CHANGE PASSWORD 
+        // CHANGE PASSWORD
         public async Task<(bool Success, string Message)> ChangePasswordAsync(int customerId, ChangePasswordRequest request)
         {
             try
@@ -119,7 +119,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        //  GET VEHICLES 
+        // GET VEHICLES
         public async Task<List<Vehicle>> GetVehiclesAsync(int customerId)
         {
             return await _db.Vehicles
@@ -127,7 +127,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 .ToListAsync();
         }
 
-        //  ADD VEHICLE 
+        // ADD VEHICLE
         public async Task<(bool Success, string Message)> AddVehicleAsync(int customerId, VehicleRequest request)
         {
             try
@@ -159,7 +159,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        // UPDATE VEHICLE 
+        // UPDATE VEHICLE
         public async Task<(bool Success, string Message)> UpdateVehicleAsync(int customerId, int vehicleId, VehicleRequest request)
         {
             try
@@ -192,7 +192,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        //  DELETE VEHICLE 
+        // DELETE VEHICLE
         public async Task<(bool Success, string Message)> DeleteVehicleAsync(int customerId, int vehicleId)
         {
             try
@@ -212,6 +212,24 @@ namespace Vehicle_Parts_Inventory_Management.Services
             {
                 return (false, "Failed to delete vehicle: " + ex.Message);
             }
+        }
+
+        // GET PURCHASE HISTORY
+        public async Task<List<PurchaseHistory>> GetPurchaseHistoryAsync(int customerId)
+        {
+            return await _db.PurchaseHistories
+                .Where(p => p.CustomerId == customerId)
+                .OrderByDescending(p => p.PurchasedAt)
+                .ToListAsync();
+        }
+
+        // GET SERVICE HISTORY
+        public async Task<List<ServiceHistory>> GetServiceHistoryAsync(int customerId)
+        {
+            return await _db.ServiceHistories
+                .Where(s => s.CustomerId == customerId)
+                .OrderByDescending(s => s.ServiceDate)
+                .ToListAsync();
         }
     }
 }

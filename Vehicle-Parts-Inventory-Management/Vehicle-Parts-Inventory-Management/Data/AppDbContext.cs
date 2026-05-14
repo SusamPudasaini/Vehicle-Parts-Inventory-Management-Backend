@@ -12,6 +12,8 @@ namespace Vehicle_Parts_Inventory_Management.Data
         public DbSet<Vendor> Vendors => Set<Vendor>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+        public DbSet<PurchaseHistory> PurchaseHistories => Set<PurchaseHistory>();
+        public DbSet<ServiceHistory> ServiceHistories => Set<ServiceHistory>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
