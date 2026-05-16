@@ -27,29 +27,60 @@ namespace Vehicle_Parts_Inventory_Management.Services
         /// Feature 6: Register a new customer along with their vehicle details.
         public async Task<CustomerResponse> RegisterAsync(CustomerCreateRequest request)
         {
-            var exists = await _db.Customers.AnyAsync(c => c.Email == request.Email);
+            var email = request.Email.Trim().ToLower();
+            var vehicleRequests = new List<VehicleRequest>();
+
+            if (request.Vehicle != null)
+                vehicleRequests.Add(request.Vehicle);
+
+            if (request.Vehicles?.Count > 0)
+                vehicleRequests.AddRange(request.Vehicles);
+
+            var vehicleNumbers = vehicleRequests
+                .Select(v => v.VehicleNumber.Trim().ToUpper())
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .ToList();
+
+            var exists = await _db.Customers.AnyAsync(c => EF.Functions.ILike(c.Email, email));
             if (exists)
                 throw new InvalidOperationException($"A customer with email '{request.Email}' already exists.");
 
+            var duplicateInRequest = vehicleNumbers
+                .GroupBy(v => v)
+                .FirstOrDefault(g => g.Count() > 1);
+
+            if (duplicateInRequest != null)
+                throw new InvalidOperationException($"Vehicle number '{duplicateInRequest.Key}' was entered more than once.");
+
+            if (vehicleNumbers.Count > 0)
+            {
+                var existingVehicle = await _db.Vehicles
+                    .Where(v => vehicleNumbers.Contains(v.VehicleNumber.ToUpper()))
+                    .Select(v => v.VehicleNumber)
+                    .FirstOrDefaultAsync();
+
+                if (existingVehicle != null)
+                    throw new InvalidOperationException($"A vehicle with number '{existingVehicle}' already exists.");
+            }
+
             var customer = new Customer
             {
-                FullName = request.FullName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Address = request.Address,
+                FullName = request.FullName.Trim(),
+                Email = email,
+                Phone = request.Phone.Trim(),
+                Address = request.Address.Trim(),
                 RegisteredAt = DateTime.UtcNow
             };
 
-            // Attach vehicle if provided
-            if (request.Vehicle != null)
+            foreach (var vehicle in vehicleRequests)
             {
                 customer.Vehicles.Add(new Vehicle
                 {
-                    VehicleNumber = request.Vehicle.VehicleNumber,
-                    Make = request.Vehicle.Make,
-                    Model = request.Vehicle.Model,
-                    Year = request.Vehicle.Year,
-                    Color = request.Vehicle.Color
+                    VehicleNumber = vehicle.VehicleNumber.Trim().ToUpper(),
+                    Make = vehicle.Make.Trim(),
+                    Model = vehicle.Model.Trim(),
+                    Year = vehicle.Year,
+                    Color = vehicle.Color.Trim()
                 });
             }
 
@@ -66,6 +97,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
         {
             var customer = await _db.Customers
                 .Include(c => c.Vehicles)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
@@ -74,7 +106,39 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 return null;
             }
 
-            return MapToResponse(customer);
+            var purchaseHistory = await _db.PurchaseHistories
+                .AsNoTracking()
+                .Where(p => p.CustomerId == id)
+                .OrderByDescending(p => p.PurchasedAt)
+                .Select(p => new PurchaseHistoryResponse
+                {
+                    Id = p.Id,
+                    PartName = p.PartName,
+                    Quantity = p.Quantity,
+                    UnitPrice = p.UnitPrice,
+                    TotalPrice = p.TotalPrice,
+                    InvoiceNumber = p.InvoiceNumber,
+                    PurchasedAt = p.PurchasedAt
+                })
+                .ToListAsync();
+
+            var serviceHistory = await _db.ServiceHistories
+                .AsNoTracking()
+                .Where(s => s.CustomerId == id)
+                .OrderByDescending(s => s.ServiceDate)
+                .Select(s => new ServiceHistoryResponse
+                {
+                    Id = s.Id,
+                    ServiceType = s.ServiceType,
+                    Description = s.Description,
+                    VehicleNumber = s.VehicleNumber,
+                    Cost = s.Cost,
+                    Status = s.Status,
+                    ServiceDate = s.ServiceDate
+                })
+                .ToListAsync();
+
+            return MapToResponse(customer, purchaseHistory, serviceHistory);
         }
 
         public async Task<List<CustomerResponse>> GetAllAsync()
@@ -123,7 +187,10 @@ namespace Vehicle_Parts_Inventory_Management.Services
         }
 
 
-        private static CustomerResponse MapToResponse(Customer c) => new()
+        private static CustomerResponse MapToResponse(
+            Customer c,
+            List<PurchaseHistoryResponse>? purchaseHistory = null,
+            List<ServiceHistoryResponse>? serviceHistory = null) => new()
         {
             Id = c.Id,
             FullName = c.FullName,
@@ -134,12 +201,15 @@ namespace Vehicle_Parts_Inventory_Management.Services
             Vehicles = c.Vehicles.Select(v => new VehicleResponse
             {
                 Id = v.Id,
+                CustomerId = v.CustomerId,
                 VehicleNumber = v.VehicleNumber,
                 Make = v.Make,
                 Model = v.Model,
                 Year = v.Year,
                 Color = v.Color
-            }).ToList()
+            }).ToList(),
+            PurchaseHistory = purchaseHistory ?? new List<PurchaseHistoryResponse>(),
+            ServiceHistory = serviceHistory ?? new List<ServiceHistoryResponse>()
         };
     }
 }

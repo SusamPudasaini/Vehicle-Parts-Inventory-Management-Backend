@@ -3,6 +3,8 @@
     public class VehicleResponse
     {
         public int Id { get; set; }
+        public int CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
         public string VehicleNumber { get; set; } = string.Empty;
         public string Make { get; set; } = string.Empty;
         public string Model { get; set; } = string.Empty;
