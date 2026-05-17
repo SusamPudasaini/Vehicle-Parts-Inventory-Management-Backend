@@ -8,21 +8,21 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
     [Route("api/part-requests")]
     public class PartRequestsController : ControllerBase
     {
-        private readonly IPartRequestService _service;
-        public PartRequestsController(IPartRequestService service) => _service = service;
+        //private readonly IPartRequestService _service;
+        //public PartRequestsController(IPartRequestService service) => _service = service;
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreatePartRequestRequest req)
-        {
-            var pr = await _service.CreateAsync(req);
-            return Ok(pr);
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> Create([FromBody] CreatePartRequestRequest req)
+        //{
+        //    var pr = await _service.CreateAsync(req);
+        //    return Ok(pr);
+        //}
 
-        [HttpGet("customer/{customerId:int}")]
-        public async Task<IActionResult> GetByCustomer(int customerId)
-        {
-            var list = await _service.GetByCustomerAsync(customerId);
-            return Ok(list);
-        }
+        //[HttpGet("customer/{customerId:int}")]
+        //public async Task<IActionResult> GetByCustomer(int customerId)
+        //{
+        //    var list = await _service.GetByCustomerAsync(customerId);
+        //    return Ok(list);
+        //}
     }
 }
