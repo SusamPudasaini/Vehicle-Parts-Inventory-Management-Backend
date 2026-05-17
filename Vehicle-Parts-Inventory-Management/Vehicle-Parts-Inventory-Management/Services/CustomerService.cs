@@ -149,7 +149,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 .OrderByDescending(c => c.RegisteredAt)
                 .ToListAsync();
 
-            return customers.Select(MapToResponse).ToList();
+            return customers.Select(c => MapToResponse(c)).ToList();
         }
 
 
@@ -183,7 +183,7 @@ namespace Vehicle_Parts_Inventory_Management.Services
 
             _logger.LogInformation("Search for '{Query}' returned {Count} results.", query, customers.Count);
 
-            return customers.Select(MapToResponse).ToList();
+            return customers.Select(c => MapToResponse(c)).ToList(); ;
         }
 
 
