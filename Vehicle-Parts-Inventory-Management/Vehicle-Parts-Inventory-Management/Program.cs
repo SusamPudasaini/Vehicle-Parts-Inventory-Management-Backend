@@ -24,6 +24,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddScoped<IPartService, PartService>();
+builder.Services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
 
 // API  
 builder.Services.AddControllers();
@@ -49,7 +51,7 @@ builder.Services.AddCors(options =>
 
 // DI for services
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+//builder.Services.AddScoped<IPartRequestService, PartRequestService>();
 builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
 
 var app = builder.Build();

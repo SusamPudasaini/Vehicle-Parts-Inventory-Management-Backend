@@ -12,17 +12,20 @@ namespace Vehicle_Parts_Inventory_Management.Data
         public DbSet<Vendor> Vendors => Set<Vendor>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+        public DbSet<Appointment> Appointments => Set<Appointment>();
+        public DbSet<PartRequestEntity> PartRequests => Set<PartRequestEntity>();
+        public DbSet<ServiceReview> ServiceReviews => Set<ServiceReview>();
         public DbSet<PurchaseHistory> PurchaseHistories => Set<PurchaseHistory>();
         public DbSet<ServiceHistory> ServiceHistories => Set<ServiceHistory>();
-        public DbSet<Appointment> Appointments => Set<Appointment>();
-        public DbSet<PartRequest> PartRequests => Set<PartRequest>();
-        public DbSet<ServiceReview> ServiceReviews => Set<ServiceReview>();
+        public DbSet<Part> Parts => Set<Part>();
+        public DbSet<PurchaseInvoice> PurchaseInvoices => Set<PurchaseInvoice>();
+        public DbSet<PurchaseInvoiceItem> PurchaseInvoiceItems => Set<PurchaseInvoiceItem>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=VehiclePartsDB;Username=postgres;Password=root");
+                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=VehiclePartsDBNew;Username=postgres;Password=root");
             }
         }
 
