@@ -8,6 +8,8 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
     /// Feature 6: Staff can register new customers with vehicle details.
     /// Feature 8: Staff can view customer details, history, and vehicle info.
     /// Feature 10: Staff can search customers by vehicle number, phone, ID, or name.
+    /// 
+    [ApiExplorerSettings(GroupName = "01-Customers")] // This puts all endpoints in this controller into the "01-Customers" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

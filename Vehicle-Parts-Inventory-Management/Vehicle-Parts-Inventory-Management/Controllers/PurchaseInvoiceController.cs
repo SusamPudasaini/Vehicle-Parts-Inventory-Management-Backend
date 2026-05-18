@@ -8,6 +8,8 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
     /// Feature 4: Admin can create purchase invoices for stock updates.
     /// Feature 1: Admin can generate daily, monthly, and yearly financial reports.
     /// </summary>
+
+    [ApiExplorerSettings(GroupName = "05-Inventory")] // This puts all endpoints in this controller into the "05-Inventory/Parts APIs" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

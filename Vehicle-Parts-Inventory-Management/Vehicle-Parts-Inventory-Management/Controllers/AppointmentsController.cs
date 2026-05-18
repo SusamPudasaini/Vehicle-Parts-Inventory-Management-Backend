@@ -4,6 +4,7 @@ using Vehicle_Parts_Inventory_Management.Interfaces;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
+    [ApiExplorerSettings(GroupName = "06-Appointments")] // This puts all endpoints in this controller into the "06-Appointments" dropdown in Swagger UI
     [ApiController]
     [Route("api/appointments")]
     public class AppointmentsController : ControllerBase

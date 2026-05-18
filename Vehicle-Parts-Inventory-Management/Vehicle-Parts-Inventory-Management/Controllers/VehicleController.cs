@@ -5,6 +5,8 @@ using Vehicle_Parts_Inventory_Management.Interfaces;
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
     /// Handles staff-facing vehicle registration and lookup.
+    /// 
+    [ApiExplorerSettings(GroupName = "04-Vehicles")] // This puts all endpoints in this controller into the "04-Vehicles" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

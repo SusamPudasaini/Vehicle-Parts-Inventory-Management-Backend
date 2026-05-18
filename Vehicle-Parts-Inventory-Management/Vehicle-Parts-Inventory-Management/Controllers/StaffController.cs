@@ -7,6 +7,8 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
 {
     /// Manages staff registration and role management.
     /// Feature 2: Admin can manage staff registration and roles.
+    
+    [ApiExplorerSettings(GroupName = "02-Staff")] // This puts all endpoints in this controller into the "02-Staff" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

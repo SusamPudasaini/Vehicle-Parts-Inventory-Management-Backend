@@ -4,6 +4,7 @@ using Vehicle_Parts_Inventory_Management.Interfaces;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
+    [ApiExplorerSettings(GroupName = "07-Reviews")] //  This puts all endpoints in this controller into the "07-Review APIs" dropdown in Swagger UI
     [ApiController]
     [Route("api/reviews")]
     public class ServiceReviewsController : ControllerBase

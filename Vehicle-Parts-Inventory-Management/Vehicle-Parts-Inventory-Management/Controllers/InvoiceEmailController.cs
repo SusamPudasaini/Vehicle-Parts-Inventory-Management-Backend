@@ -6,6 +6,7 @@ using Vehicle_Parts_Inventory_Management.Interfaces;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
+    [ApiExplorerSettings(GroupName = "08-Invoices-Email")] // This puts all endpoints in this controller into the "08-Invoice Email APIs" dropdown in Swagger UI
     [ApiController]
     [Route("api/invoices")]
     public class InvoiceEmailController : ControllerBase

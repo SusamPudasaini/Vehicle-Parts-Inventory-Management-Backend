@@ -8,6 +8,8 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
     /// Feature 3: Admin can perform parts management (add, edit, delete).
     /// Feature 15: Low stock detection endpoint.
     /// </summary>
+
+    [ApiExplorerSettings(GroupName = "05-Inventory")] // This puts all endpoints in this controller into the "05-Inventory/Parts APIs" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]

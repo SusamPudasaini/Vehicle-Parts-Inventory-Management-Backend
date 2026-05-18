@@ -6,6 +6,7 @@ using Vehicle_Parts_Inventory_Management.DTOs.Responses;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
+    [ApiExplorerSettings(GroupName = "00-Auth")] // This puts all endpoints in this controller into the "00-Auth" dropdown in Swagger UI
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase

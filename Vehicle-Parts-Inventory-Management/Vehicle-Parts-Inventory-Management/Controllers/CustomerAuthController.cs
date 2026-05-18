@@ -5,6 +5,7 @@ using Vehicle_Parts_Inventory_Management.Services;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
+    [ApiExplorerSettings(GroupName = "00-Auth")] // This puts all endpoints in this controller into the "00-Auth" dropdown in Swagger UI
     [ApiController]
     [Route("api/customer-auth")]
     public class CustomerAuthController : ControllerBase

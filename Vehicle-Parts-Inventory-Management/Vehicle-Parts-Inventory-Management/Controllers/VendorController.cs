@@ -7,6 +7,7 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
 {
     /// Manages vendor CRUD operations.
     /// Feature 5: Admin can manage vendor details.
+    [ApiExplorerSettings(GroupName = "03-Vendors")] // This puts all endpoints in this controller into the "03-Vendors" dropdown in Swagger UI
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
