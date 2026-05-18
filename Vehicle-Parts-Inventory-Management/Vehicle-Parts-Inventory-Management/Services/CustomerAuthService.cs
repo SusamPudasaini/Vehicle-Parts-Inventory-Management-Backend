@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Vehicle_Parts_Inventory_Management.Data;
 using Vehicle_Parts_Inventory_Management.DTOs.Requests;
 using Vehicle_Parts_Inventory_Management.Entities;
@@ -73,24 +74,32 @@ namespace Vehicle_Parts_Inventory_Management.Services
         }
 
         // LOGIN (blocked if not verified)
-        public async Task<Customer?> LoginAsync(LoginRequest request)
+        public async Task<(bool Success, Customer? Customer, string Message)> LoginAsync(LoginRequest request)
         {
             try
             {
                 var email = request.Email.ToLower().Trim();
 
                 var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Email == email);
-                if (customer == null) return null;
+                if (customer == null)
+                    return (false, null, "Invalid email or password.");
+
+                if (string.IsNullOrWhiteSpace(customer.PasswordHash))
+                    return (false, null, "This customer account does not have portal access yet. Please register for customer portal access first.");
 
                 bool valid = BCrypt.Net.BCrypt.Verify(request.Password, customer.PasswordHash);
-                if (!valid) return null;
+                if (!valid)
+                    return (false, null, "Invalid email or password.");
 
-                // block until verified (controller will return 403)
-                return customer;
+                return (true, customer, "Login successful.");
             }
-            catch
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedColumn)
             {
-                return null;
+                return (false, null, "Database is missing the customer email verification columns. Please run the latest EF Core migration and try again.");
+            }
+            catch (Exception)
+            {
+                return (false, null, "Customer login failed because of a server error. Please try again later.");
             }
         }
 

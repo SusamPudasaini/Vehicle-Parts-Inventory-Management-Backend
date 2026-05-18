@@ -7,7 +7,7 @@ namespace Vehicle_Parts_Inventory_Management.Interfaces
     {
         // Auth
         Task<(bool Success, string Message)> RegisterAsync(CustomerRegisterRequest request);
-        Task<Customer?> LoginAsync(LoginRequest request);
+        Task<(bool Success, Customer? Customer, string Message)> LoginAsync(LoginRequest request);
 
         // Email verification
         Task<(bool Success, string Message)> VerifyEmailAsync(string token);

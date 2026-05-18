@@ -52,10 +52,23 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var customer = await _service.LoginAsync(request);
+            var login = await _service.LoginAsync(request);
 
-            if (customer == null)
-                return Unauthorized(new { message = "Invalid email or password." });
+            if (!login.Success || login.Customer == null)
+            {
+                if (login.Message.Contains("Database is missing", StringComparison.OrdinalIgnoreCase))
+                    return StatusCode(500, new { message = login.Message });
+
+                if (login.Message.Contains("server error", StringComparison.OrdinalIgnoreCase))
+                    return StatusCode(500, new { message = login.Message });
+
+                if (login.Message.Contains("portal access", StringComparison.OrdinalIgnoreCase))
+                    return StatusCode(403, new { message = login.Message });
+
+                return Unauthorized(new { message = login.Message });
+            }
+
+            var customer = login.Customer;
 
             // Block login until verified
             if (!customer.IsEmailVerified)
