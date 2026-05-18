@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vehicle_Parts_Inventory_Management.Data;
+using Vehicle_Parts_Inventory_Management.Models;
 using Vehicle_Parts_Inventory_Management.Interfaces;
 using Vehicle_Parts_Inventory_Management.Services;
 
@@ -15,6 +16,10 @@ builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<ICustomerAuthService, CustomerAuthService>();
+
+// Email Service
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Session
 builder.Services.AddDistributedMemoryCache();
