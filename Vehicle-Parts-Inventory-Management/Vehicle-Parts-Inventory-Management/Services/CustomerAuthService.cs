@@ -54,9 +54,9 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 _db.Customers.Add(customer);
                 await _db.SaveChangesAsync();
 
-                // Build verification link
-                var baseUrl = _config["AppUrls:BackendBaseUrl"] ?? "https://localhost:7041";
-                var link = $"{baseUrl}/api/customer-auth/verify-email?token={token}";
+                // Send customers to the frontend so the app can show a branded verification result.
+                var frontendBaseUrl = _config["AppUrls:FrontendBaseUrl"] ?? "http://localhost:5173";
+                var link = $"{frontendBaseUrl.TrimEnd('/')}/customer/verify-email?token={Uri.EscapeDataString(token)}";
 
                 // Send verification email
                 await _email.SendAsync(

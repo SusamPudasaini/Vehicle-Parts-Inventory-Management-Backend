@@ -83,9 +83,9 @@ namespace Vehicle_Parts_Inventory_Management.Services
                 throw new InvalidOperationException("A staff account with this email already exists.");
             }
 
-            // Build verification link -> your AuthController endpoint
-            var baseUrl = _config["AppUrls:BackendBaseUrl"] ?? "https://localhost:7041";
-            var verifyLink = $"{baseUrl}/api/auth/verify-staff-email?token={rawToken}";
+            // Send staff to the frontend so the app can show a branded verification result.
+            var frontendBaseUrl = _config["AppUrls:FrontendBaseUrl"] ?? "http://localhost:5173";
+            var verifyLink = $"{frontendBaseUrl.TrimEnd('/')}/verify-email/staff?token={Uri.EscapeDataString(rawToken)}";
 
             try
             {
