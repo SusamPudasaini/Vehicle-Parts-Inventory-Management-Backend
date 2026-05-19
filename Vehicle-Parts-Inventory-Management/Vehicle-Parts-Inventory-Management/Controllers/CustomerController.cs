@@ -68,5 +68,35 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        /// Update a customer profile.
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCustomerRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _service.UpdateAsync(id, request);
+                return result == null
+                    ? NotFound(new { message = $"Customer with ID {id} not found." })
+                    : Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        /// Delete a customer.
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _service.DeleteAsync(id);
+            return success
+                ? Ok(new { message = "Customer deleted successfully." })
+                : NotFound(new { message = $"Customer with ID {id} not found." });
+        }
     }
 }

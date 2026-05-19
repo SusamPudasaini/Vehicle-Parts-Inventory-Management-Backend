@@ -152,6 +152,45 @@ namespace Vehicle_Parts_Inventory_Management.Services
             return customers.Select(c => MapToResponse(c)).ToList();
         }
 
+        public async Task<CustomerResponse?> UpdateAsync(int id, UpdateCustomerRequest request)
+        {
+            var customer = await _db.Customers
+                .Include(c => c.Vehicles)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer == null)
+                return null;
+
+            var email = request.Email.Trim().ToLower();
+            var emailExists = await _db.Customers
+                .AnyAsync(c => c.Id != id && EF.Functions.ILike(c.Email, email));
+
+            if (emailExists)
+                throw new InvalidOperationException($"A customer with email '{request.Email}' already exists.");
+
+            customer.FullName = request.FullName.Trim();
+            customer.Email = email;
+            customer.Phone = request.Phone.Trim();
+            customer.Address = request.Address.Trim();
+
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Customer '{FullName}' updated with ID {Id}.", customer.FullName, customer.Id);
+            return MapToResponse(customer);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Id == id);
+            if (customer == null)
+                return false;
+
+            _db.Customers.Remove(customer);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Customer with ID {Id} deleted.", id);
+            return true;
+        }
+
 
         /// Feature 10: Search customers by name, phone, ID, or vehicle number.
         /// Case-insensitive search using PostgreSQL ILIKE.

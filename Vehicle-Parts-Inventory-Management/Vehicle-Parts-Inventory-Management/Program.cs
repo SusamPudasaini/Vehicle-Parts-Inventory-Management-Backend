@@ -42,7 +42,7 @@ builder.Services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
 
 // DI for services
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-//builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+builder.Services.AddScoped<IPartRequestService, PartRequestService>();
 builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
 
 // API  

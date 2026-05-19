@@ -10,5 +10,7 @@ namespace Vehicle_Parts_Inventory_Management.Interfaces
         Task<CustomerResponse?> GetByIdAsync(int id);
         Task<List<CustomerResponse>> SearchAsync(string query); // F10
         Task<List<CustomerResponse>> GetAllAsync();
+        Task<CustomerResponse?> UpdateAsync(int id, UpdateCustomerRequest request);
+        Task<bool> DeleteAsync(int id);
     }
 }
