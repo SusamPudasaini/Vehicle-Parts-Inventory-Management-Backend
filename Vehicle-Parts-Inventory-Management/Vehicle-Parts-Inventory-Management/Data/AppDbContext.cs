@@ -17,6 +17,8 @@ namespace Vehicle_Parts_Inventory_Management.Data
         public DbSet<ServiceReview> ServiceReviews => Set<ServiceReview>();
         public DbSet<PurchaseHistory> PurchaseHistories => Set<PurchaseHistory>();
         public DbSet<ServiceHistory> ServiceHistories => Set<ServiceHistory>();
+        public DbSet<CustomerPartOrder> CustomerPartOrders => Set<CustomerPartOrder>();
+        public DbSet<CustomerPartOrderItem> CustomerPartOrderItems => Set<CustomerPartOrderItem>();
         public DbSet<Part> Parts => Set<Part>();
         public DbSet<PurchaseInvoice> PurchaseInvoices => Set<PurchaseInvoice>();
         public DbSet<PurchaseInvoiceItem> PurchaseInvoiceItems => Set<PurchaseInvoiceItem>();
@@ -46,6 +48,24 @@ namespace Vehicle_Parts_Inventory_Management.Data
                 .WithMany(c => c.Vehicles)
                 .HasForeignKey(v => v.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CustomerPartOrder>()
+                .HasOne(order => order.Customer)
+                .WithMany()
+                .HasForeignKey(order => order.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CustomerPartOrderItem>()
+                .HasOne(item => item.CustomerPartOrder)
+                .WithMany(order => order.Items)
+                .HasForeignKey(item => item.CustomerPartOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CustomerPartOrderItem>()
+                .HasOne(item => item.Part)
+                .WithMany()
+                .HasForeignKey(item => item.PartId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

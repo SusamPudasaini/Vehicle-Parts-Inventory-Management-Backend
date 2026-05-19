@@ -25,5 +25,48 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
             var list = await _service.GetByCustomerAsync(customerId);
             return Ok(list);
         }
+
+        // GET: api/appointments
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var list = await _service.GetAllAsync();
+            return Ok(list);
+        }
+
+        // PUT: api/appointments/{appointmentId}/status
+        [HttpPut("{appointmentId:int}/status")]
+        public async Task<IActionResult> UpdateStatus(int appointmentId, [FromBody] UpdateAppointmentStatusRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _service.UpdateStatusAsync(appointmentId, request.Status);
+            if (result == null)
+                return NotFound(new { message = "Appointment not found." });
+
+            return Ok(new { message = "Appointment status updated." });
+        }
+
+        // PUT: api/appointments/{appointmentId}/schedule
+        [HttpPut("{appointmentId:int}/schedule")]
+        public async Task<IActionResult> Reschedule(int appointmentId, [FromBody] UpdateAppointmentScheduleRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _service.RescheduleAsync(appointmentId, request.AppointmentDateTime);
+                if (result == null)
+                    return NotFound(new { message = "Appointment not found." });
+
+                return Ok(new { message = "Appointment rescheduled." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

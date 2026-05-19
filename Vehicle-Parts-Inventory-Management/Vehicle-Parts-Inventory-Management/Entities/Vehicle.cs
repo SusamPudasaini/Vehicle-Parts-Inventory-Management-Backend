@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace Vehicle_Parts_Inventory_Management.Entities
 {
     public class Vehicle
@@ -11,6 +13,7 @@ namespace Vehicle_Parts_Inventory_Management.Entities
         public string Color { get; set; } = string.Empty;
 
         public int CustomerId { get; set; }
+        [JsonIgnore]
         public Customer Customer { get; set; } = null!;
     }
 }
