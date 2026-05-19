@@ -10,5 +10,8 @@
         public string PhoneNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
+        public bool IsEmailVerified { get; set; } = false;
+        public string? EmailVerificationTokenHash { get; set; }
+        public DateTime? EmailVerificationTokenExpiresUtc { get; set; }
     }
 }

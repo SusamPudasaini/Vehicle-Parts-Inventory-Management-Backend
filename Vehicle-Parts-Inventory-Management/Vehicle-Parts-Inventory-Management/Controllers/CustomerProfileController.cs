@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Vehicle_Parts_Inventory_Management.DTOs.Requests;
-using Vehicle_Parts_Inventory_Management.Services;
+using Vehicle_Parts_Inventory_Management.Interfaces;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {

@@ -20,5 +20,9 @@ namespace Vehicle_Parts_Inventory_Management.Entities
 
         // Navigation properties
         public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+
+        public bool IsEmailVerified { get; set; } = false;
+        public string? EmailVerificationTokenHash { get; set; }
+        public DateTime? EmailVerificationTokenExpiresUtc { get; set; }
     }
 }

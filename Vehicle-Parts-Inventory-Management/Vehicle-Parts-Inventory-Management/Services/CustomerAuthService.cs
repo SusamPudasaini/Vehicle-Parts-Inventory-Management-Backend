@@ -2,43 +2,69 @@
 using Vehicle_Parts_Inventory_Management.Data;
 using Vehicle_Parts_Inventory_Management.DTOs.Requests;
 using Vehicle_Parts_Inventory_Management.Entities;
+using Vehicle_Parts_Inventory_Management.Helpers;
+using Vehicle_Parts_Inventory_Management.Interfaces;
 
 namespace Vehicle_Parts_Inventory_Management.Services
 {
     public class CustomerAuthService : ICustomerAuthService
     {
         private readonly AppDbContext _db;
+        private readonly IEmailService _email;
+        private readonly IConfiguration _config;
 
-        public CustomerAuthService(AppDbContext db)
+        public CustomerAuthService(AppDbContext db, IEmailService email, IConfiguration config)
         {
             _db = db;
+            _email = email;
+            _config = config;
         }
 
-        // REGISTER
+        // REGISTER (sending verification email; login only after verified)
         public async Task<(bool Success, string Message)> RegisterAsync(CustomerRegisterRequest request)
         {
             try
             {
-                bool emailExists = await _db.Customers
-                    .AnyAsync(c => c.Email == request.Email.ToLower().Trim());
+                var email = request.Email.ToLower().Trim();
 
+                bool emailExists = await _db.Customers.AnyAsync(c => c.Email == email);
                 if (emailExists)
                     return (false, "An account with this email already exists.");
+
+                // Generate verification token (store only HASH)
+                var token = EmailVerificationToken.GenerateToken();
+                var tokenHash = EmailVerificationToken.HashToken(token);
 
                 var customer = new Customer
                 {
                     FullName = request.FullName.Trim(),
-                    Email = request.Email.ToLower().Trim(),
+                    Email = email,
                     Phone = request.Phone.Trim(),
                     Address = request.Address.Trim(),
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                    RegisteredAt = DateTime.UtcNow
+                    RegisteredAt = DateTime.UtcNow,
+
+                    // Email verification fields
+                    IsEmailVerified = false,
+                    EmailVerificationTokenHash = tokenHash,
+                    EmailVerificationTokenExpiresUtc = DateTime.UtcNow.AddHours(24)
                 };
 
                 _db.Customers.Add(customer);
                 await _db.SaveChangesAsync();
 
-                return (true, "Registration successful. You can now log in.");
+                // Build verification link
+                var baseUrl = _config["AppUrls:BackendBaseUrl"] ?? "https://localhost:7041";
+                var link = $"{baseUrl}/api/customer-auth/verify-email?token={token}";
+
+                // Send verification email
+                await _email.SendAsync(
+                    customer.Email,
+                    "Verify your email address",
+                    $"Hi {customer.FullName},\n\nPlease verify your email by clicking the link below:\n{link}\n\nThis link expires in 24 hours.\n"
+                );
+
+                return (true, "Registration successful. Please verify your email before logging in.");
             }
             catch (Exception ex)
             {
@@ -46,23 +72,50 @@ namespace Vehicle_Parts_Inventory_Management.Services
             }
         }
 
-        // LOGIN
+        // LOGIN (blocked if not verified)
         public async Task<Customer?> LoginAsync(LoginRequest request)
         {
             try
             {
-                var customer = await _db.Customers
-                    .FirstOrDefaultAsync(c => c.Email == request.Email.ToLower().Trim());
+                var email = request.Email.ToLower().Trim();
 
+                var customer = await _db.Customers.FirstOrDefaultAsync(c => c.Email == email);
                 if (customer == null) return null;
 
                 bool valid = BCrypt.Net.BCrypt.Verify(request.Password, customer.PasswordHash);
-                return valid ? customer : null;
+                if (!valid) return null;
+
+                // block until verified (controller will return 403)
+                return customer;
             }
             catch
             {
                 return null;
             }
+        }
+
+        // VERIFY EMAIL 
+        public async Task<(bool Success, string Message)> VerifyEmailAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return (false, "Token is required.");
+
+            var tokenHash = EmailVerificationToken.HashToken(token);
+
+            var customer = await _db.Customers.FirstOrDefaultAsync(c =>
+                c.EmailVerificationTokenHash == tokenHash &&
+                c.EmailVerificationTokenExpiresUtc != null &&
+                c.EmailVerificationTokenExpiresUtc > DateTime.UtcNow);
+
+            if (customer == null)
+                return (false, "Invalid or expired verification link.");
+
+            customer.IsEmailVerified = true;
+            customer.EmailVerificationTokenHash = null;
+            customer.EmailVerificationTokenExpiresUtc = null;
+
+            await _db.SaveChangesAsync();
+            return (true, "Email verified successfully. You can now log in.");
         }
 
         // GET PROFILE

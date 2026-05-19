@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Vehicle_Parts_Inventory_Management.DTOs.Requests;
+using Vehicle_Parts_Inventory_Management.Interfaces;
 using Vehicle_Parts_Inventory_Management.Services;
 
 namespace Vehicle_Parts_Inventory_Management.Controllers
 {
-    [ApiExplorerSettings(GroupName = "00-Auth")] // This puts all endpoints in this controller into the "00-Auth" dropdown in Swagger UI
+    [ApiExplorerSettings(GroupName = "00-Auth")]
     [ApiController]
     [Route("api/customer-auth")]
     public class CustomerAuthController : ControllerBase
@@ -32,6 +33,18 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
             return Ok(new { message = result.Message });
         }
 
+        // GET: api/customer-auth/verify-email?token=XXXX
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+        {
+            var result = await _service.VerifyEmailAsync(token);
+
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
         // POST: api/customer-auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -43,6 +56,10 @@ namespace Vehicle_Parts_Inventory_Management.Controllers
 
             if (customer == null)
                 return Unauthorized(new { message = "Invalid email or password." });
+
+            // Block login until verified
+            if (!customer.IsEmailVerified)
+                return StatusCode(403, new { message = "Please verify your email before logging in." });
 
             HttpContext.Session.SetString("CustomerId", customer.Id.ToString());
             HttpContext.Session.SetString("CustomerName", customer.FullName);
